@@ -13,7 +13,21 @@ export const palette = {
   line: '#E2DFD6',
 } as const;
 
-export const colors = {
+export type ThemeColors = {
+  bg: string;
+  surface: string;
+  surfaceAlt: string;
+  text: string;
+  textMuted: string;
+  primary: string;
+  primaryText: string;
+  accent: string;
+  danger: string;
+  border: string;
+  tabInactive: string;
+};
+
+export const colors: { light: ThemeColors; dark: ThemeColors } = {
   light: {
     bg: palette.bone,
     surface: palette.paper,
@@ -40,9 +54,7 @@ export const colors = {
     border: '#2E362E',
     tabInactive: '#6E766D',
   },
-} as const;
-
-export type ThemeColors = typeof colors.light;
+};
 
 export const spacing = {
   xs: 4,

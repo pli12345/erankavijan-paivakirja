@@ -1,50 +1,84 @@
-# Welcome to your Expo app 👋
+# Eränkävijän päiväkirja
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Metsästyspäiväkirja iOS:lle ja Androidille. Reissut, saaliit, havainnot, kartta ja
+kausitilastot — pilvitallennuksella, joten samat tiedot näkyvät kaikilla laitteilla.
 
-## Get started
+Rakennettu Expo + React Native + TypeScript -pinolla, backendinä Supabase.
 
-1. Install dependencies
+## Ominaisuudet
 
-   ```bash
-   npm install
-   ```
+- **Kirjautuminen** sähköpostilla ja salasanalla (Supabase Auth)
+- **Reissut** — otsikko, alue, aloitus- ja lopetusaika, seuruekaverit, muistiinpanot
+- **Sää automaattisesti** reissun sijainnin perusteella (Open-Meteo, ei API-avainta)
+- **Saaliit** — laji, sukupuoli, ikäluokka, paino, sarvipiikit, kuva, GPS-sijainti
+- **Havainnot** — nähdyt eläimet, joita ei kaadettu
+- **Kalenteri** — kuukausinäkymä, jossa reissut ja saaliit merkittynä
+- **Kartta** — saaliit, havainnot ja reissut pisteinä, tasot suodatettavissa
+- **Tilastot** — kausikohtaiset summat, saaliit lajeittain ja kuukausittain
 
-2. Start the app
+## Käyttöönotto
 
-   ```bash
-   npx expo start
-   ```
+### 1. Supabase-projekti
 
-In the output, you'll find options to open the app in a
+1. Luo ilmainen projekti osoitteessa [supabase.com](https://supabase.com).
+2. Avaa **SQL Editor → New query**, liitä [`supabase/schema.sql`](supabase/schema.sql)
+   sisältö ja aja se. Tämä luo taulut, käyttöoikeussäännöt (RLS) ja kuvien tallennustilan.
+3. Kopioi **Project Settings → API** -sivulta *Project URL* ja *anon public* -avain.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 2. Ympäristömuuttujat
 
 ```bash
-npm run reset-project
+cp .env.example .env
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Täytä `.env`-tiedostoon kohdasta 1 kopioidut arvot:
 
-## Learn more
+```
+EXPO_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### 3. Kehityskäynnistys
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm install
+npx expo start
+```
 
-## Join the community
+Avaa sovellus Expo Go -sovelluksella puhelimessa tai simulaattorissa
+(`i` = iOS-simulaattori, `a` = Android-emulaattori).
 
-Join our community of developers creating universal apps.
+## Julkaisu kauppoihin
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Julkaisu tehdään EAS Buildilla. Vaatii Expo-tilin sekä Apple Developer Program
+-jäsenyyden (99 $/v) ja Google Play Console -tilin (25 $ kertamaksu).
+
+```bash
+npm install -g eas-cli
+eas login
+eas build:configure
+
+# Testiversiot
+eas build --profile preview --platform android
+
+# Kauppaversiot
+eas build --profile production --platform all
+eas submit --platform ios
+eas submit --platform android
+```
+
+Ennen julkaisua tarvitaan vielä sovelluskuvake ja splash-kuva
+(`assets/images/`), kauppakuvakaappaukset sekä tietosuojaseloste.
+
+## Projektin rakenne
+
+```
+app/                 Näkymät (expo-router, tiedostopohjainen reititys)
+  (auth)/login.tsx   Kirjautuminen ja rekisteröityminen
+  (tabs)/            Päiväkirja, kalenteri, kartta, tilastot, profiili
+  trip/              Reissun luonti ja tiedot
+  catch/             Saaliin luonti ja tiedot
+  observation/       Havainnon luonti
+src/                 Logiikka: Supabase-kytkentä, API, teema, komponentit
+supabase/schema.sql  Tietokantaskeema
+```
