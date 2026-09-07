@@ -2,7 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import { showAlert, showConfirm } from '../../src/alert';
 import { deleteCatch, getCatch } from '../../src/api';
 import { formatDateTime } from '../../src/format';
 import { formatCoords } from '../../src/location';
@@ -24,7 +25,7 @@ export default function CatchDetailScreen() {
     try {
       setItem(await getCatch(id));
     } catch (e) {
-      Alert.alert('Virhe', e instanceof Error ? e.message : 'Tietojen haku epäonnistui');
+      showAlert('Virhe', e instanceof Error ? e.message : 'Tietojen haku epäonnistui');
     } finally {
       setLoading(false);
     }
@@ -37,21 +38,20 @@ export default function CatchDetailScreen() {
   );
 
   function confirmDelete() {
-    Alert.alert('Poista saalis', 'Haluatko varmasti poistaa tämän saalismerkinnän?', [
-      { text: 'Peruuta', style: 'cancel' },
-      {
-        text: 'Poista',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteCatch(id);
-            router.back();
-          } catch (e) {
-            Alert.alert('Poisto epäonnistui', e instanceof Error ? e.message : 'Tuntematon virhe');
-          }
-        },
+    showConfirm({
+      title: 'Poista saalis',
+      message: 'Haluatko varmasti poistaa tämän saalismerkinnän?',
+      confirmLabel: 'Poista',
+      destructive: true,
+      onConfirm: async () => {
+        try {
+          await deleteCatch(id);
+          router.back();
+        } catch (e) {
+          showAlert('Poisto epäonnistui', e instanceof Error ? e.message : 'Tuntematon virhe');
+        }
       },
-    ]);
+    });
   }
 
   if (loading) {

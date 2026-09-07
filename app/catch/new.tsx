@@ -3,7 +3,8 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { showAlert } from '../../src/alert';
 import { createCatch, uploadCatchPhoto } from '../../src/api';
 import { DateTimeField } from '../../src/DateTimeField';
 import { formatCoords, getCurrentCoords, type Coords } from '../../src/location';
@@ -39,7 +40,7 @@ export default function NewCatchScreen() {
     try {
       const c = await getCurrentCoords();
       if (!c) {
-        Alert.alert('Sijainti ei käytettävissä', 'Anna sovellukselle sijaintilupa laitteen asetuksista.');
+        showAlert('Sijainti ei käytettävissä', 'Anna sovellukselle sijaintilupa laitteen asetuksista.');
         return;
       }
       setCoords(c);
@@ -51,7 +52,7 @@ export default function NewCatchScreen() {
   async function takePhoto() {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Kameralupa puuttuu', 'Anna sovellukselle kameralupa laitteen asetuksista.');
+      showAlert('Kameralupa puuttuu', 'Anna sovellukselle kameralupa laitteen asetuksista.');
       return;
     }
     const res = await ImagePicker.launchCameraAsync({ quality: 0.6 });
@@ -65,7 +66,7 @@ export default function NewCatchScreen() {
 
   async function save() {
     if (!species) {
-      Alert.alert('Valitse laji', 'Saaliille pitää valita laji.');
+      showAlert('Valitse laji', 'Saaliille pitää valita laji.');
       return;
     }
     setSaving(true);
@@ -88,7 +89,7 @@ export default function NewCatchScreen() {
       });
       router.replace(`/catch/${created.id}`);
     } catch (e) {
-      Alert.alert('Tallennus epäonnistui', e instanceof Error ? e.message : 'Tuntematon virhe');
+      showAlert('Tallennus epäonnistui', e instanceof Error ? e.message : 'Tuntematon virhe');
     } finally {
       setSaving(false);
     }

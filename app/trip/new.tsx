@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { showAlert } from '../../src/alert';
 import { createTrip } from '../../src/api';
 import { DateTimeField } from '../../src/DateTimeField';
 import { formatCoords, getCurrentCoords, type Coords } from '../../src/location';
@@ -29,7 +30,7 @@ export default function NewTripScreen() {
     try {
       const c = await getCurrentCoords();
       if (!c) {
-        Alert.alert('Sijainti ei käytettävissä', 'Anna sovellukselle sijaintilupa laitteen asetuksista.');
+        showAlert('Sijainti ei käytettävissä', 'Anna sovellukselle sijaintilupa laitteen asetuksista.');
         return;
       }
       setCoords(c);
@@ -57,7 +58,7 @@ export default function NewTripScreen() {
       });
       router.replace(`/trip/${trip.id}`);
     } catch (e) {
-      Alert.alert('Tallennus epäonnistui', e instanceof Error ? e.message : 'Tuntematon virhe');
+      showAlert('Tallennus epäonnistui', e instanceof Error ? e.message : 'Tuntematon virhe');
     } finally {
       setSaving(false);
     }

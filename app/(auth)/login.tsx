@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -11,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { authErrorMessage } from '../../src/alert';
 import { useAuth } from '../../src/auth';
 import { isSupabaseConfigured } from '../../src/supabase';
 import { radius, spacing } from '../../src/theme';
@@ -28,16 +28,28 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  function switchMode(next: Mode) {
+    setMode(next);
+    setError(null);
+    setNotice(null);
+  }
 
   async function submit() {
+    setError(null);
+    setNotice(null);
+
     if (!email.trim() || !password) {
-      Alert.alert('Puuttuvia tietoja', 'Täytä sähköposti ja salasana.');
+      setError('Täytä sähköposti ja salasana.');
       return;
     }
     if (mode === 'register' && password.length < 6) {
-      Alert.alert('Liian lyhyt salasana', 'Salasanassa on oltava vähintään 6 merkkiä.');
+      setError('Salasanassa on oltava vähintään 6 merkkiä.');
       return;
     }
+
     setBusy(true);
     try {
       if (mode === 'login') {
@@ -45,30 +57,29 @@ export default function LoginScreen() {
       } else {
         const { needsConfirmation } = await signUp(email, password, displayName || email.split('@')[0]);
         if (needsConfirmation) {
-          Alert.alert(
-            'Vahvista sähköposti',
-            'Lähetimme vahvistuslinkin sähköpostiisi. Vahvista tili ja kirjaudu sitten sisään.'
-          );
           setMode('login');
+          setNotice('Tili luotu. Lähetimme vahvistuslinkin sähköpostiisi — vahvista se ja kirjaudu sitten sisään.');
         }
       }
     } catch (e) {
-      Alert.alert('Kirjautuminen epäonnistui', e instanceof Error ? e.message : 'Tuntematon virhe');
+      setError(authErrorMessage(e));
     } finally {
       setBusy(false);
     }
   }
 
   async function forgot() {
+    setError(null);
+    setNotice(null);
     if (!email.trim()) {
-      Alert.alert('Anna sähköposti', 'Kirjoita ensin sähköpostiosoitteesi kenttään.');
+      setError('Kirjoita ensin sähköpostiosoitteesi kenttään.');
       return;
     }
     try {
       await resetPassword(email);
-      Alert.alert('Tarkista sähköpostisi', 'Lähetimme salasanan palautuslinkin.');
+      setNotice('Lähetimme salasanan palautuslinkin sähköpostiisi.');
     } catch (e) {
-      Alert.alert('Virhe', e instanceof Error ? e.message : 'Tuntematon virhe');
+      setError(authErrorMessage(e));
     }
   }
 
@@ -126,7 +137,7 @@ export default function LoginScreen() {
             {(['login', 'register'] as Mode[]).map((m) => (
               <Pressable
                 key={m}
-                onPress={() => setMode(m)}
+                onPress={() => switchMode(m)}
                 style={{
                   flex: 1,
                   paddingVertical: 10,
@@ -176,6 +187,38 @@ export default function LoginScreen() {
             <Pressable onPress={forgot}>
               <Text style={{ color: t.textMuted, fontSize: 13 }}>Unohditko salasanasi?</Text>
             </Pressable>
+          )}
+
+          {error && (
+            <View
+              style={{
+                flexDirection: 'row',
+                gap: spacing.sm,
+                backgroundColor: t.surfaceAlt,
+                borderLeftWidth: 3,
+                borderLeftColor: t.danger,
+                borderRadius: radius.sm,
+                padding: spacing.md,
+              }}>
+              <Ionicons name="alert-circle" size={18} color={t.danger} />
+              <Text style={{ color: t.text, flex: 1, fontSize: 14 }}>{error}</Text>
+            </View>
+          )}
+
+          {notice && (
+            <View
+              style={{
+                flexDirection: 'row',
+                gap: spacing.sm,
+                backgroundColor: t.surfaceAlt,
+                borderLeftWidth: 3,
+                borderLeftColor: t.primary,
+                borderRadius: radius.sm,
+                padding: spacing.md,
+              }}>
+              <Ionicons name="checkmark-circle" size={18} color={t.primary} />
+              <Text style={{ color: t.text, flex: 1, fontSize: 14 }}>{notice}</Text>
+            </View>
           )}
 
           <Button

@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { showAlert, showConfirm } from '../../src/alert';
 import { getProfile, updateProfile } from '../../src/api';
 import { useAuth } from '../../src/auth';
 import { spacing } from '../../src/theme';
@@ -40,19 +41,22 @@ export default function ProfileScreen() {
     setSaving(true);
     try {
       await updateProfile({ display_name: displayName.trim() || null, hunting_club: club.trim() || null });
-      Alert.alert('Tallennettu', 'Profiilitiedot päivitettiin.');
+      showAlert('Tallennettu', 'Profiilitiedot päivitettiin.');
     } catch (e) {
-      Alert.alert('Tallennus epäonnistui', e instanceof Error ? e.message : 'Tuntematon virhe');
+      showAlert('Tallennus epäonnistui', e instanceof Error ? e.message : 'Tuntematon virhe');
     } finally {
       setSaving(false);
     }
   }
 
   function confirmSignOut() {
-    Alert.alert('Kirjaudu ulos', 'Haluatko kirjautua ulos?', [
-      { text: 'Peruuta', style: 'cancel' },
-      { text: 'Kirjaudu ulos', style: 'destructive', onPress: () => signOut() },
-    ]);
+    showConfirm({
+      title: 'Kirjaudu ulos',
+      message: 'Haluatko kirjautua ulos?',
+      confirmLabel: 'Kirjaudu ulos',
+      destructive: true,
+      onConfirm: () => signOut(),
+    });
   }
 
   if (loading) {

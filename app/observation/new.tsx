@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { showAlert } from '../../src/alert';
 import { createObservation } from '../../src/api';
 import { DateTimeField } from '../../src/DateTimeField';
 import { formatCoords, getCurrentCoords, type Coords } from '../../src/location';
@@ -28,7 +29,7 @@ export default function NewObservationScreen() {
     try {
       const c = await getCurrentCoords();
       if (!c) {
-        Alert.alert('Sijainti ei käytettävissä', 'Anna sovellukselle sijaintilupa laitteen asetuksista.');
+        showAlert('Sijainti ei käytettävissä', 'Anna sovellukselle sijaintilupa laitteen asetuksista.');
         return;
       }
       setCoords(c);
@@ -39,7 +40,7 @@ export default function NewObservationScreen() {
 
   async function save() {
     if (!species) {
-      Alert.alert('Valitse laji', 'Havainnolle pitää valita laji.');
+      showAlert('Valitse laji', 'Havainnolle pitää valita laji.');
       return;
     }
     setSaving(true);
@@ -55,7 +56,7 @@ export default function NewObservationScreen() {
       });
       router.back();
     } catch (e) {
-      Alert.alert('Tallennus epäonnistui', e instanceof Error ? e.message : 'Tuntematon virhe');
+      showAlert('Tallennus epäonnistui', e instanceof Error ? e.message : 'Tuntematon virhe');
     } finally {
       setSaving(false);
     }

@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { showAlert, showConfirm } from '../../src/alert';
 import { deleteTrip, getTrip, listCatches, listObservations } from '../../src/api';
 import { formatCoords } from '../../src/location';
 import { formatDateTime, formatDuration, formatTime } from '../../src/format';
@@ -33,7 +34,7 @@ export default function TripDetailScreen() {
       setCatches(catchRows);
       setObservations(obsRows);
     } catch (e) {
-      Alert.alert('Virhe', e instanceof Error ? e.message : 'Tietojen haku epäonnistui');
+      showAlert('Virhe', e instanceof Error ? e.message : 'Tietojen haku epäonnistui');
     } finally {
       setLoading(false);
     }
@@ -46,21 +47,20 @@ export default function TripDetailScreen() {
   );
 
   function confirmDelete() {
-    Alert.alert('Poista reissu', 'Haluatko varmasti poistaa tämän reissun? Saaliit jäävät päiväkirjaan.', [
-      { text: 'Peruuta', style: 'cancel' },
-      {
-        text: 'Poista',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteTrip(id);
-            router.back();
-          } catch (e) {
-            Alert.alert('Poisto epäonnistui', e instanceof Error ? e.message : 'Tuntematon virhe');
-          }
-        },
+    showConfirm({
+      title: 'Poista reissu',
+      message: 'Haluatko varmasti poistaa tämän reissun? Saaliit jäävät päiväkirjaan.',
+      confirmLabel: 'Poista',
+      destructive: true,
+      onConfirm: async () => {
+        try {
+          await deleteTrip(id);
+          router.back();
+        } catch (e) {
+          showAlert('Poisto epäonnistui', e instanceof Error ? e.message : 'Tuntematon virhe');
+        }
       },
-    ]);
+    });
   }
 
   if (loading) {
