@@ -14,14 +14,14 @@ step() { printf '\n== %s ==\n' "$1"; }
 ok()   { echo "  ok — $1"; }
 bad()  { echo "  FAIL — $1"; FAILED=1; }
 
-step "1/6  Secret watchdog (proven in both directions)"
+step "1/7  Secret watchdog (proven in both directions)"
 if bash scripts/prove-secret-scan.sh >/dev/null 2>&1; then
   ok "watchdog detects a planted secret and passes a clean tree"
 else
   bad "watchdog proof failed — the gate is blind, see scripts/prove-secret-scan.sh"
 fi
 
-step "2/6  Secret scan of tracked files"
+step "2/7  Secret scan of tracked files"
 if out=$(bash scripts/secret-scan.sh 2>&1); then
   ok "${out##*$'\n'}"
 else
@@ -29,7 +29,7 @@ else
   bad "secrets found in tracked files"
 fi
 
-step "3/6  .env is ignored, .env.example is tracked"
+step "3/7  .env is ignored, .env.example is tracked"
 if git check-ignore -q .env; then ok ".env is gitignored"; else bad ".env is NOT gitignored"; fi
 if git ls-files --error-unmatch .env.example >/dev/null 2>&1; then
   ok ".env.example is tracked"
@@ -42,7 +42,7 @@ else
   ok ".env is not in the index"
 fi
 
-step "4/6  Environment variable parity (.env.example vs .env)"
+step "4/7  Environment variable parity (.env.example vs .env)"
 if [ -f .env ]; then
   missing=""
   while IFS= read -r key; do
@@ -79,7 +79,7 @@ else
   bad ".env missing — copy .env.example and fill it in"
 fi
 
-step "5/6  TypeScript"
+step "5/7  TypeScript"
 if npx --no-install tsc --noEmit 2>&1 | tee /tmp/preflight-tsc.log | tail -5; then
   if [ -s /tmp/preflight-tsc.log ]; then
     bad "typecheck produced output — see above"
@@ -91,7 +91,7 @@ else
 fi
 rm -f /tmp/preflight-tsc.log
 
-step "6/6  Lint"
+step "6/7  Lint"
 if npx --no-install eslint . >/tmp/preflight-lint.log 2>&1; then
   ok "no lint errors"
 else
@@ -99,6 +99,15 @@ else
   bad "lint errors"
 fi
 rm -f /tmp/preflight-lint.log
+
+step "7/7  Tests"
+if npx --no-install jest --silent >/tmp/preflight-jest.log 2>&1; then
+  ok "$(grep -E '^Tests:' /tmp/preflight-jest.log | head -1 | sed 's/^ *//')"
+else
+  tail -20 /tmp/preflight-jest.log | sed 's/^/  /'
+  bad "tests failing"
+fi
+rm -f /tmp/preflight-jest.log
 
 echo
 if [ $FAILED -eq 0 ]; then

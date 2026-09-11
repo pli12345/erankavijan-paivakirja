@@ -42,12 +42,24 @@ ruudulla kertaakaan — se vaatii kirjautuneen istunnon. Testataan lentotilalla
 Nämä eivät toimi selainversiossa lainkaan. Odottaa Xcode-asennusta ja
 simulaattoriajoa.
 
-## 5. Ei yhtään automaattitestiä
+## ~~5. Ei yhtään automaattitestiä~~ — ALOITETTU 2026-09-11
 
-Projektissa ei ole testikehystä. Sääntöjen mukaan puhdas logiikka eriytetään
-I/O:sta ja testataan deterministisesti. Ehdotus: Jest + golden-testit
-moduuleille `src/format.ts`, `src/species.ts` ja `src/weather.ts`, jotka ovat
-puhdasta logiikkaa ja helposti katettavissa.
+Jest (`jest-expo`) käytössä, 39 testiä moduuleille `src/format.ts`,
+`src/species.ts` ja `src/mapTiles.ts`. Testit ajetaan preflightin kohdassa 7.
+Todistettu istutetulla vialla: z/y/x-järjestyksen kääntäminen kaataa testin.
+
+Kattamatta yhä: `src/weather.ts` (vaatii fixturen Open-Meteo-vastauksesta),
+`src/api.ts` ja näkymäkomponentit.
+
+## 8. Riippuvuuksissa haavoittuvuuksia
+
+`npm audit`: 1 kriittinen, 18 korkeaa, 21 keskitasoista. Kaikki korkeat ovat
+Expon ja Metron build-työkaluissa (`@expo/cli`, `metro`, `js-yaml`,
+`image-size`) ja palvelunestotyyppisiä — ne eivät päädy käyttäjälle
+toimitettavaan pakettiin. Olivat puussa jo ennen testikehyksen asennusta.
+
+Ei kiireellinen, mutta tarkistettava ennen julkaisua ja Expo-päivitysten
+yhteydessä.
 
 ## 6. Julkaisun esivaatimukset kartoittamatta
 
