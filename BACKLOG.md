@@ -5,18 +5,12 @@ väliaikainen kirjanpito, ei korvaa issueita. Järjestys on prioriteetti.
 
 ---
 
-## 1. Maanmittauslaitoksen API-avain puuttuu
+## ~~1. Maanmittauslaitoksen API-avain puuttuu~~ — HOIDETTU 2026-09-11
 
-**Vakavuus:** kartta ei näytä maastokarttaa ennen kuin avain on olemassa.
-
-Karttalaatat toteutettu commitissa, mutta `EXPO_PUBLIC_MML_API_KEY` on tyhjä,
-joten laatat palauttaisivat 401. Sovellus tunnistaa tämän ja näyttää alustan
-oman peruskartan, eli kartta ei hajoa — mutta maastokarttaa ei saada.
-
-Vaatii omistajalta rekisteröitymisen:
-https://omatili.maanmittauslaitos.fi/user/new/avoimet-rajapintapalvelut
-
-Kun avain on `.env`-tiedostossa, aja `bash scripts/spike-mml-tiles.sh`.
+Avain saatu ja asetettu `.env`-tiedostoon. Spike ajettu: kaikki kolme tasoa
+palauttavat HTTP 200 ja oikeaa kuvadataa. Laatta z=9 y=140 x=291 näyttää
+Karstulan ja Saarijärven seudun, eli polun z/y/x-järjestys on oikein.
+Fixturet tallennettu hakemistoon `fixtures/mml/`.
 
 ## 1b. Google Maps -avain Androidilla — EI poistu MML-laatoilla
 

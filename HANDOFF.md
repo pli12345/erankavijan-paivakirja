@@ -30,7 +30,11 @@ Tämä on tuorein totuus käynnissä olevasta työstä. Lue tämä ensin, sitten
   kalenteri, tilastot ja profiili näyttivät epäonnistuneen haun tyhjänä
   näkymänä. Profiilissa seuraus oli vakavin: tyhjä lomake tallensi nullin
   oikean nimen päälle. Uusi `LoadErrorState` uudelleenyrityspainikkeella.
-- `BACKLOG.md` (`6c9796c`): seitsemän löydöstä odottamassa issueiksi.
+- `BACKLOG.md` (`6c9796c`): löydökset odottamassa issueiksi.
+- **Maanmittauslaitoksen karttalaatat** (`5fe9230`). Maastokartta, taustakartta
+  ja ilmakuva WMTS-rajapinnasta, CC BY 4.0 -attribuutio kartalla.
+  **Verified oikeaa dataa vasten**: spike hakee laatan jokaiselta tasolta,
+  ja maastokarttalaatta näyttää Karstulan ja Saarijärven seudun oikein.
 
 ## Nykytila per kohde
 
@@ -40,7 +44,8 @@ Tämä on tuorein totuus käynnissä olevasta työstä. Lue tämä ensin, sitten
 | Web (kehitys) | **Verified** — sovellus latautuu, kirjautumisvirhe näkyy oikein |
 | iOS-paketti | **Verified kääntyy** — Metro tuottaa 15,0 MB paketin, oikea backend-osoite paketissa, ei salaisuuksia. Ei ajettu laitteella. |
 | Android-paketti | **Verified kääntyy** — 15,0 MB. Ei ajettu laitteella. |
-| iOS/Android ajossa | **Ei todennettu** — kartta, kamera ja GPS kokonaan testaamatta |
+| MML-karttarajapinta | **Verified** — kolme tasoa, HTTP 200, kuvasisältö tarkistettu silmämääräisesti 2026-09-11 |
+| iOS/Android ajossa | **Ei todennettu** — kartta, kamera ja GPS kokonaan testaamatta laitteella |
 | App Store | Ei aloitettu |
 | Google Play | Ei aloitettu |
 

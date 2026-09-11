@@ -1,4 +1,5 @@
 import { Pressable, ScrollView, Text, View } from 'react-native';
+import type { MapLayerId } from './mapTiles';
 import { spacing } from './theme';
 import { useTheme } from './useTheme';
 
@@ -11,7 +12,13 @@ export type MapMarker = {
   color: string;
 };
 
-/** Kartta toimii vain iOS- ja Android-sovelluksessa; webissä näytetään lista. */
+/**
+ * Kartta toimii vain iOS- ja Android-sovelluksessa; webissä näytetään lista.
+ *
+ * Propsien on vastattava CatchMapView.tsx:ää, vaikka osaa ei käytetä täällä:
+ * tsc ei resolvoi alustakohtaisia tiedostoja, joten tyyppien ajautuminen
+ * erilleen ei näy tyyppitarkistuksessa.
+ */
 export function CatchMapView({
   markers,
   onPressMarker,
@@ -19,6 +26,7 @@ export function CatchMapView({
   markers: MapMarker[];
   initialRegion: unknown;
   onPressMarker: (id: string) => void;
+  layerId?: MapLayerId;
 }) {
   const t = useTheme();
   return (
