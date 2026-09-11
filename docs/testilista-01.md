@@ -79,6 +79,18 @@ Jos yhteys ei aukea, kerro se heti — vaihdan palvelimen tunneliin.
 | 26 | Profiili: muuta nimi, tallenna, poistu ja palaa | **Muuttunut nimi on yhä siellä** |
 | 27 | Kirjaudu ulos | Kysyy vahvistuksen, palaa kirjautumisnäkymään |
 
+## G. Virhetilanteet (lentotila päälle)
+
+Nämä testaavat commitissa `ab8452d` korjatun vian: aiemmin epäonnistunut haku
+näytti tyhjältä näkymältä, eli sovellus valehteli ettei dataa ole.
+
+| # | Vaihe | Odotettu tulos |
+|---|---|---|
+| 28 | Kytke **lentotila päälle**, avaa karttavälilehti uudelleen | "Tietojen haku epäonnistui" + **Yritä uudelleen** -painike. **Ei** tekstiä "Ei sijaintimerkintöjä" |
+| 29 | Sama kalenterissa ja tilastoissa | Sama virhenäkymä, ei tyhjää kalenteria eikä nollatilastoja |
+| 30 | Sama profiilissa | Virhenäkymä. **Lomaketta ei näy lainkaan** — tämä estää tyhjien arvojen tallentumisen oikeiden päälle |
+| 31 | Kytke lentotila pois, paina **Yritä uudelleen** | Data latautuu normaalisti |
+
 ---
 
 ## Tiedossa olevat rajoitteet
