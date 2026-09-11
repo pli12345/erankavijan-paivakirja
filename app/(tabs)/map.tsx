@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { listCatches, listObservations, listTrips } from '../../src/api';
 import { CatchMapView, type MapMarker } from '../../src/CatchMapView';
+import { DEFAULT_LAYER, hasMapKey, MAP_LAYERS, type MapLayerId } from '../../src/mapTiles';
 import { formatDate } from '../../src/format';
 import { radius, spacing } from '../../src/theme';
 import type { Catch, Observation, Trip } from '../../src/types';
@@ -22,6 +23,7 @@ export default function MapScreen() {
   const [observations, setObservations] = useState<Observation[]>([]);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [layers, setLayers] = useState<Layer[]>(['catches', 'observations', 'trips']);
+  const [baseLayer, setBaseLayer] = useState<MapLayerId>(DEFAULT_LAYER);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -145,7 +147,12 @@ export default function MapScreen() {
           />
         </View>
       ) : (
-        <CatchMapView markers={markers} initialRegion={region} onPressMarker={openMarker} />
+        <CatchMapView
+          markers={markers}
+          initialRegion={region}
+          onPressMarker={openMarker}
+          layerId={baseLayer}
+        />
       )}
 
       <View
@@ -161,6 +168,26 @@ export default function MapScreen() {
         <LayerChip label="Havainnot" active={layers.includes('observations')} onPress={() => toggle('observations')} />
         <LayerChip label="Reissut" active={layers.includes('trips')} onPress={() => toggle('trips')} />
       </View>
+
+      {hasMapKey() && markers.length > 0 && (
+        <View
+          style={{
+            position: 'absolute',
+            bottom: insets.bottom + spacing.xl,
+            left: spacing.lg,
+            flexDirection: 'row',
+            gap: spacing.xs,
+          }}>
+          {MAP_LAYERS.map((l) => (
+            <LayerChip
+              key={l.id}
+              label={l.label}
+              active={baseLayer === l.id}
+              onPress={() => setBaseLayer(l.id)}
+            />
+          ))}
+        </View>
+      )}
     </View>
   );
 }

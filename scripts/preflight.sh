@@ -54,13 +54,27 @@ if [ -f .env ]; then
   else
     ok "every .env.example key is present in .env"
   fi
+  # Keys the app runs without, in a degraded but honest mode. An empty one is
+  # reported, never silently accepted — the degradation must stay visible.
+  OPTIONAL_KEYS=" EXPO_PUBLIC_MML_API_KEY "
+
   # Values are never printed — only whether they are empty.
-  empty=""
+  empty=""; degraded=""
   while IFS= read -r line; do
     key="${line%%=*}"; val="${line#*=}"
-    [ -z "$val" ] && empty="$empty $key"
+    [ -n "$val" ] && continue
+    case "$OPTIONAL_KEYS" in
+      *" $key "*) degraded="$degraded $key" ;;
+      *) empty="$empty $key" ;;
+    esac
   done < <(grep -E '^[A-Z_][A-Z0-9_]*=' .env)
-  if [ -n "$empty" ]; then bad "empty values in .env:$empty"; else ok "no empty values in .env"; fi
+
+  if [ -n "$empty" ]; then bad "empty required values in .env:$empty"; else ok "no empty required values"; fi
+  if [ -n "$degraded" ]; then
+    echo "  WARN — optional key not set:$degraded"
+    echo "         Maanmittauslaitoksen karttalaatat eivät ole käytössä;"
+    echo "         kartta näyttää alustan oman peruskartan."
+  fi
 else
   bad ".env missing — copy .env.example and fill it in"
 fi

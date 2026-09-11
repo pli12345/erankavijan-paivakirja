@@ -5,17 +5,31 @@ väliaikainen kirjanpito, ei korvaa issueita. Järjestys on prioriteetti.
 
 ---
 
-## 1. Google Maps -avain puuttuu — kartta jää harmaaksi Androidilla
+## 1. Maanmittauslaitoksen API-avain puuttuu
 
-**Vakavuus:** estää Play-julkaisun.
+**Vakavuus:** kartta ei näytä maastokarttaa ennen kuin avain on olemassa.
 
-`react-native-maps` käyttää iOS:ssä Apple Mapsia ilman avainta, mutta Androidilla
-se vaatii Google Maps API -avaimen. `app.json`-tiedostossa ei ole
-`android.config.googleMaps.apiKey`-asetusta, joten karttavälilehti näyttää
-Androidilla harmaan ruudun.
+Karttalaatat toteutettu commitissa, mutta `EXPO_PUBLIC_MML_API_KEY` on tyhjä,
+joten laatat palauttaisivat 401. Sovellus tunnistaa tämän ja näyttää alustan
+oman peruskartan, eli kartta ei hajoa — mutta maastokarttaa ei saada.
 
-Vaatii omistajalta Google Cloud -projektin ja Maps SDK for Android -avaimen.
-Avain menee ympäristömuuttujaan, ei versionhallintaan.
+Vaatii omistajalta rekisteröitymisen:
+https://omatili.maanmittauslaitos.fi/user/new/avoimet-rajapintapalvelut
+
+Kun avain on `.env`-tiedostossa, aja `bash scripts/spike-mml-tiles.sh`.
+
+## 1b. Google Maps -avain Androidilla — EI poistu MML-laatoilla
+
+**Vakavuus:** estää Play-julkaisun. **Todentamatta.**
+
+Helppo ymmärtää väärin: vaikka näkyvät laatat tulevat Maanmittauslaitokselta,
+`react-native-maps` käyttää Androidilla moottorinaan Google Maps SDK:ta, joka
+vaatii oman API-avaimensa alustuakseen — myös `mapType="none"` -tilassa.
+`app.json`-tiedostossa ei ole `android.config.googleMaps.apiKey`-asetusta.
+
+Tämä on pääteltyä, ei mitattua: varmistettava Android-ajossa ennen kuin
+korjataan. Vaihtoehto on vaihtaa karttakirjasto sellaiseen, joka ei tarvitse
+Googlea (esim. MapLibre), jolloin riippuvuus poistuu kokonaan.
 
 ## 2. Kirjautuminen todentamatta päästä päähän
 

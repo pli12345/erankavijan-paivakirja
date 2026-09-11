@@ -30,6 +30,8 @@ poikkeukset.
 | Alusta | Expo SDK 54, React Native, TypeScript |
 | Julkaisukohteet | Apple App Store ja Google Play |
 | `gh`-työkalu | `~/.local/bin/gh` (2.100.0, asennettu 2026-09-11) |
+| Karttalaatat | Maanmittauslaitoksen avoin WMTS, lisenssi CC BY 4.0 |
+| MML-rekisteröinti | https://omatili.maanmittauslaitos.fi/user/new/avoimet-rajapintapalvelut |
 
 Supabase-avaimet ovat vain `.env`-tiedostossa, joka on gitignoressa.
 `.env.example` on versionhallinnassa paikanvaraaja-arvoilla.
@@ -45,6 +47,9 @@ Supabase-avaimet ovat vain `.env`-tiedostossa, joka on gitignoressa.
   ilmoitukset katoavat selaimessa.
 - `supabase/schema.sql` — taulut, RLS-säännöt ja tallennustila. Ajetaan
   Supabasen SQL Editorissa.
+- `src/mapTiles.ts` — Maanmittauslaitoksen WMTS-laatat. **Attribuutio on
+  CC BY 4.0 -lisenssin ehto**: `attributionText`-teksti näkyy kartalla eikä
+  sitä saa poistaa tai piilottaa. WMTS-polun järjestys on z/y/x, ei z/x/y.
 
 ## Vanhentuneet oletukset, älä palauta
 
