@@ -26,6 +26,11 @@ Tämä on tuorein totuus käynnissä olevasta työstä. Lue tämä ensin, sitten
   preflight-portti ja molempiin suuntiin todistettu salaisuusvahti.
 - `gh` 2.100.0 asennettu (`~/.local/bin/gh`), tarkistesumma todennettu
   virallista julkaisua vasten.
+- **Korjattu: neljä näkymää nielaisi latausvirheen** (`ab8452d`). Kartta,
+  kalenteri, tilastot ja profiili näyttivät epäonnistuneen haun tyhjänä
+  näkymänä. Profiilissa seuraus oli vakavin: tyhjä lomake tallensi nullin
+  oikean nimen päälle. Uusi `LoadErrorState` uudelleenyrityspainikkeella.
+- `BACKLOG.md` (`6c9796c`): seitsemän löydöstä odottamassa issueiksi.
 
 ## Nykytila per kohde
 
@@ -54,6 +59,7 @@ alla olevista kohdista.
    Tämä kattaa kirjautumisen, kartan, kameran ja GPS:n kerralla.
 2. `gh auth login` (omistaja) → sen jälkeen avaa backlog-issuet.
 3. Testilistan löydökset korjataan ja kirjataan issueiksi.
+   Erityisesti kohdat 28–31 todentavat commitin `ab8452d` korjauksen.
 4. Tyhjien tilojen ja virhetilanteiden fallbackit käytävä läpi jokaisesta
    näkymästä.
 5. App Store- ja Play-julkaisun esivaatimukset: tilit, ikonit,
