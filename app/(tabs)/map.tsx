@@ -7,7 +7,7 @@ import { CatchMapView, type MapMarker } from '../../src/CatchMapView';
 import { formatDate } from '../../src/format';
 import { radius, spacing } from '../../src/theme';
 import type { Catch, Observation, Trip } from '../../src/types';
-import { EmptyState } from '../../src/ui';
+import { EmptyState, LoadErrorState } from '../../src/ui';
 import { useTheme } from '../../src/useTheme';
 
 type Layer = 'catches' | 'observations' | 'trips';
@@ -23,6 +23,7 @@ export default function MapScreen() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [layers, setLayers] = useState<Layer[]>(['catches', 'observations', 'trips']);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -30,12 +31,20 @@ export default function MapScreen() {
       setCatches(c);
       setObservations(o);
       setTrips(tr);
-    } catch {
-      // virhe näkyy päiväkirjavälilehdellä
+      setError(null);
+    } catch (e) {
+      // Virhettä ei saa niellä: ilman tätä epäonnistunut haku näyttäisi
+      // tyhjältä kartalta, eli käyttäjälle valehdeltaisiin ettei merkintöjä ole.
+      setError(e instanceof Error ? e.message : 'Tuntematon virhe');
     } finally {
       setLoading(false);
     }
   }, []);
+
+  const retry = useCallback(() => {
+    setLoading(true);
+    load();
+  }, [load]);
 
   useFocusEffect(
     useCallback(() => {
@@ -123,7 +132,11 @@ export default function MapScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: t.bg }}>
-      {markers.length === 0 ? (
+      {error ? (
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <LoadErrorState message={error} onRetry={retry} />
+        </View>
+      ) : markers.length === 0 ? (
         <View style={{ flex: 1, justifyContent: 'center' }}>
           <EmptyState
             icon="map-outline"

@@ -7,7 +7,7 @@ import { showAlert, showConfirm } from '../../src/alert';
 import { getProfile, updateProfile } from '../../src/api';
 import { useAuth } from '../../src/auth';
 import { spacing } from '../../src/theme';
-import { Button, Card, Field } from '../../src/ui';
+import { Button, Card, Field, LoadErrorState } from '../../src/ui';
 import { useTheme } from '../../src/useTheme';
 
 export default function ProfileScreen() {
@@ -18,18 +18,29 @@ export default function ProfileScreen() {
   const [club, setClub] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
       const profile = await getProfile();
+      // getProfile käyttää maybeSingle()-kutsua, joten puuttuva profiili
+      // palauttaa nullin heittämättä. Tänne päädytään vain aidosta virheestä.
       setDisplayName(profile?.display_name ?? '');
       setClub(profile?.hunting_club ?? '');
-    } catch {
-      // profiilia ei ole vielä luotu
+      setError(null);
+    } catch (e) {
+      // Virhettä ei saa niellä. Jos lataus epäonnistuu ja kentät jäävät
+      // tyhjiksi, tallennus kirjoittaisi käyttäjän oikean nimen päälle tyhjän.
+      setError(e instanceof Error ? e.message : 'Tuntematon virhe');
     } finally {
       setLoading(false);
     }
   }, []);
+
+  const retry = useCallback(() => {
+    setLoading(true);
+    load();
+  }, [load]);
 
   useFocusEffect(
     useCallback(() => {
@@ -63,6 +74,16 @@ export default function ProfileScreen() {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: t.bg }}>
         <ActivityIndicator color={t.primary} size="large" />
+      </View>
+    );
+  }
+
+  // Lomaketta ei näytetä lainkaan, jos lataus epäonnistui: tyhjä lomake
+  // houkuttelisi tallentamaan tyhjät arvot olemassa olevien päälle.
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: t.bg }}>
+        <LoadErrorState message={error} onRetry={retry} />
       </View>
     );
   }

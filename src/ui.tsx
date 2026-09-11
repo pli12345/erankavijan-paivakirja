@@ -152,22 +152,48 @@ export function EmptyState({
   icon = 'leaf-outline',
   title,
   message,
+  tone = 'neutral',
+  action,
 }: {
   icon?: keyof typeof Ionicons.glyphMap;
   title: string;
   message?: string;
+  /** 'danger' merkitsee, ettei data puutu vaan sen haku epäonnistui. */
+  tone?: 'neutral' | 'danger';
+  action?: { label: string; onPress: () => void };
 }) {
   const t = useTheme();
   return (
     <View style={{ alignItems: 'center', paddingVertical: spacing.xxl * 1.5, gap: spacing.sm }}>
-      <Ionicons name={icon} size={44} color={t.tabInactive} />
+      <Ionicons name={icon} size={44} color={tone === 'danger' ? t.danger : t.tabInactive} />
       <Text style={{ color: t.text, fontSize: 17, fontWeight: '700' }}>{title}</Text>
       {message && (
         <Text style={{ color: t.textMuted, textAlign: 'center', paddingHorizontal: spacing.xl }}>
           {message}
         </Text>
       )}
+      {action && (
+        <View style={{ marginTop: spacing.md }}>
+          <Button title={action.label} variant="secondary" icon="refresh" onPress={action.onPress} />
+        </View>
+      )}
     </View>
+  );
+}
+
+/**
+ * Latausvirhe. Erillinen komponentti, koska tyhjä tila ja epäonnistunut haku
+ * eivät saa näyttää samalta: "ei merkintöjä" on valhe, jos haku kaatui.
+ */
+export function LoadErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <EmptyState
+      icon="cloud-offline-outline"
+      tone="danger"
+      title="Tietojen haku epäonnistui"
+      message={message}
+      action={{ label: 'Yritä uudelleen', onPress: onRetry }}
+    />
   );
 }
 

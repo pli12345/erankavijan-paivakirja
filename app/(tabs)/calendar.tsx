@@ -10,7 +10,7 @@ import { formatTime } from '../../src/format';
 import { speciesIcon } from '../../src/species';
 import { spacing } from '../../src/theme';
 import type { Catch, Trip } from '../../src/types';
-import { Card, EmptyState } from '../../src/ui';
+import { Card, EmptyState, LoadErrorState } from '../../src/ui';
 import { useTheme } from '../../src/useTheme';
 
 LocaleConfig.locales.fi = {
@@ -34,6 +34,7 @@ export default function CalendarScreen() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [catches, setCatches] = useState<Catch[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState(format(new Date(), 'yyyy-MM-dd'));
 
   const load = useCallback(async () => {
@@ -41,12 +42,20 @@ export default function CalendarScreen() {
       const [tripRows, catchRows] = await Promise.all([listTrips(), listCatches()]);
       setTrips(tripRows);
       setCatches(catchRows);
-    } catch {
-      // virhe näkyy päiväkirjavälilehdellä
+      setError(null);
+    } catch (e) {
+      // Virhettä ei saa niellä: muuten epäonnistunut haku näyttää kalenterilta,
+      // jossa ei ole yhtään merkintää.
+      setError(e instanceof Error ? e.message : 'Tuntematon virhe');
     } finally {
       setLoading(false);
     }
   }, []);
+
+  const retry = useCallback(() => {
+    setLoading(true);
+    load();
+  }, [load]);
 
   useFocusEffect(
     useCallback(() => {
@@ -77,6 +86,14 @@ export default function CalendarScreen() {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: t.bg }}>
         <ActivityIndicator color={t.primary} size="large" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: t.bg }}>
+        <LoadErrorState message={error} onRetry={retry} />
       </View>
     );
   }

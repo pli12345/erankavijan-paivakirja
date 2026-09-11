@@ -7,7 +7,7 @@ import { huntingSeason } from '../../src/format';
 import { speciesIcon } from '../../src/species';
 import { radius, spacing } from '../../src/theme';
 import type { Catch, Observation, Trip } from '../../src/types';
-import { Card, Chip, EmptyState, SectionTitle } from '../../src/ui';
+import { Card, Chip, EmptyState, LoadErrorState, SectionTitle } from '../../src/ui';
 import { useTheme } from '../../src/useTheme';
 
 const MONTH_LABELS = ['Elo', 'Syys', 'Loka', 'Marras', 'Joulu', 'Tammi', 'Helmi', 'Maalis', 'Huhti', 'Touko', 'Kesä', 'Heinä'];
@@ -19,6 +19,7 @@ export default function StatsScreen() {
   const [catches, setCatches] = useState<Catch[]>([]);
   const [observations, setObservations] = useState<Observation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [seasonOffset, setSeasonOffset] = useState(0);
 
   const load = useCallback(async () => {
@@ -27,12 +28,20 @@ export default function StatsScreen() {
       setTrips(tr);
       setCatches(c);
       setObservations(o);
-    } catch {
-      // virhe näkyy päiväkirjavälilehdellä
+      setError(null);
+    } catch (e) {
+      // Virhettä ei saa niellä: muuten epäonnistunut haku näyttää tilastoilta,
+      // joissa kaikki luvut ovat nollia.
+      setError(e instanceof Error ? e.message : 'Tuntematon virhe');
     } finally {
       setLoading(false);
     }
   }, []);
+
+  const retry = useCallback(() => {
+    setLoading(true);
+    load();
+  }, [load]);
 
   useFocusEffect(
     useCallback(() => {
@@ -89,6 +98,14 @@ export default function StatsScreen() {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: t.bg }}>
         <ActivityIndicator color={t.primary} size="large" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', backgroundColor: t.bg }}>
+        <LoadErrorState message={error} onRetry={retry} />
       </View>
     );
   }
